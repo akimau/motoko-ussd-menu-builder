@@ -1,8 +1,10 @@
 {
   "canisters": {
-    "ussd-product-backend": {
-      "main": "test/test.mo",
-      "type": "motoko"
+    "test": {
+      "main": "test.mo",
+      "type": "motoko",
+      "optimize": "cycles",
+      "gzip": true
     }
   },
   "defaults": {
