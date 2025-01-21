@@ -1,0 +1,12 @@
+[package]
+name = "ussd-menu-builder"
+version = "1.0.0"
+description = "Motoko ussd menu builder"
+repository = "https://github.com/akimau/motoko-ussd-menu-builder"
+keywords = [ "ussd" ]
+license = "MIT"
+
+[toolchain]
+moc = "0.13.6"
+wasmtime = "29.0.0"
+pocket-ic = "7.0.0"
