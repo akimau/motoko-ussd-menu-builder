@@ -10,3 +10,6 @@ license = "MIT"
 moc = "0.13.6"
 wasmtime = "29.0.0"
 pocket-ic = "7.0.0"
+
+[dependencies]
+map = "9.0.1"
