@@ -7,7 +7,7 @@ let tMenu = {
     id = "1";
     description = "description";
     menuItems = Set.new<MenuItem.MenuItem>();
-    start = func(_, s) = (null, s);
+    start = func(_, s) = ("", s);
 } : Menu.Menu;
 
 let tMenuItem = {
