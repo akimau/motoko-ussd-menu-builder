@@ -2,17 +2,23 @@ import { addMenuItem; menuItemHash; menuItemsAreEqual } "../../src/Ussd/modules/
 import Set "mo:map/Set";
 import MenuItem "../../src/Ussd/modules/MenuItem";
 import Menu "../../src/Ussd/modules/Menu";
+import Args "../../src/Ussd/modules/Args";
+import Session "../../src/Ussd/modules/Session";
+import Func "../../src/Ussd/modules/Func";
+
+let start = func(_ : Args.Args, s : Session.Session) : async* Func.NextHandlerResp = async* ("", s);
+let run = func(_ : Args.Args, s : Session.Session) : async* Session.Session = async* s;
 
 let tMenu = {
     id = "1";
     description = "description";
     menuItems = Set.new<MenuItem.MenuItem>();
-    start = func(_, s) = ("", s);
+    start;
 } : Menu.Menu;
 
 let tMenuItem = {
     id = "menu-item-1";
-    run = func(_, s) = s;
+    run;
     text = "Menu item 1";
     options = null;
     next = null;
