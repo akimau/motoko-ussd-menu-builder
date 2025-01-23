@@ -3,33 +3,46 @@ import Func "Func";
 import Array "mo:base/Array";
 import Nat32 "mo:base/Nat32";
 import Text "mo:base/Text";
-import Option "mo:base/Option";
 import Set "mo:map/Set";
 import T "../types";
 
 module MenuItem {
     type MenuOption = MenuOption.MenuOption;
-    type Func = Func.Func;
+    type Run = Func.Run;
+    type NextHandler = Func.NextHandler;
 
     public type MenuItem = {
+        // The id of the menu item
         id : T.MenuItemId;
+
+        // The function to run when this menu item is visited
+        run : Run;
+
+        // The menu text/prompt without reply options
+        // which are specified in the optional options set
         text : T.MenuItemText;
-        options : ?T.Set<MenuOption>; // if options is empty, then free input is allowed
-        next : ?T.NextMenuItemId; // the next menu item Id after free input has been provided
-        exec : ?Func; // the function to execute after free input has been provided
+
+        // If options is null, then free input is allowed
+        options : ?T.Set<MenuOption>;
+
+        // The function to execute after free input has been provided
+        // Will return the optional next menu item Id and latest session
+        nextHandler : ?NextHandler;
     };
 
     /// Return a new instance of a MenuItem
     public func new(
         id : T.MenuItemId,
+        run : Run,
         text : T.MenuItemText,
         next : ?T.NextMenuItemId,
-        exec : ?Func,
-    ) : MenuItem { { id; text; options = null; next; exec } };
+        nextHandler : ?NextHandler,
+    ) : MenuItem { { id; run; text; options = null; next; nextHandler } };
 
     /// Return a new instance of a MenuItem with options
     public func newWithOptions(
         id : T.MenuItemId,
+        run : Run,
         text : T.MenuItemText,
         options : [MenuOption],
     ) : MenuItem {
@@ -37,12 +50,7 @@ module MenuItem {
 
         Array.vals(options)
         |> Set.fromIter(_, (menuOptionHash, menuOptionsAreEqual))
-        |> { id; text; options = ?_; next = null; exec = null };
-    };
-
-    /// Check if menu item specifies a navigable next menu item
-    public func hasNext({ options; next } : MenuItem) : Bool {
-        Option.isSome(options) or Option.isSome(next);
+        |> { id; run; text; options = ?_; nextHandler = null };
     };
 
     /// Build the displayable menu item text
