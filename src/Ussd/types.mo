@@ -17,4 +17,9 @@ module {
 
     public type PhoneNumber = Text;
     public type ServiceCode = Text;
+
+    public type MenuError = {
+        #MenuNotFound : ?MenuItemId;
+        #UnexpectedError;
+    };
 };

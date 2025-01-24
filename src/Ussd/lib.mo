@@ -6,6 +6,7 @@ import Args "modules/Args";
 import Result "mo:base/Result";
 import Time "mo:base/Time";
 import T "types";
+import Func "modules/Func";
 
 module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
@@ -13,14 +14,15 @@ module {
     public type Menu = Menu.Menu;
     public type MenuItem = MenuItem.MenuItem;
     public type MenuOption = MenuOption.MenuOption;
+    public type MenuResp = (Text, Session);
+    public type MenuError = T.MenuError;
+
+    public type Run = Func.Run;
+    public type NextHandler = Func.NextHandler;
+    public type NextHandlerResp = Func.NextHandlerResp;
+
     public type Args = Args.Args;
     public type Session = Session.Session;
-    public type MenuResp = (Text, Session);
-
-    public type MenuError = {
-        #MenuNotFound : ?T.MenuItemId;
-        #UnexpectedError;
-    };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +46,7 @@ module {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public let { new = newSession } = Session;
+    public let { new = newSession; put = saveData; get = readData } = Session;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -109,10 +111,12 @@ module {
     func runMenuItem(menuItem : MenuItem, args : Args, session : Session) : async* Result<MenuResp, MenuError> {
         let s = await* menuItem.run(args, session);
         let displayText = MenuItem.displayText(menuItem, s);
+        let hasNext = MenuItem.hasNext(menuItem);
         #ok(
-            (if (MenuItem.hasNext(menuItem)) "CON " else "END ") # displayText,
+            (if (hasNext) "CON " else "END ") # displayText,
             {
                 s with currentMenuItemId = ?menuItem.id;
+                data = if (hasNext) s.data else null; // clear data if session has ended
                 updatedAt = Time.now();
             },
         );
