@@ -2,18 +2,27 @@ import Func "Func";
 import T "../types";
 
 module MenuOption {
-    type Func = Func.Func;
+    type NextHandler = Func.NextHandler;
 
     public type MenuOption = {
-        choice : T.Choice; // The choice input e.g "1"
-        text : T.ChoiceText; // The choice text e.g "Terms & Conditions"
-        next : T.NextMenuItemId; // The next menu item Id after this option is selected
-        exec : ?Func; // The function to execute after this option is selected
+        // The choice input e.g "1"
+        choice : T.Choice;
+
+        // The choice text e.g "Terms & Conditions"
+        text : T.ChoiceText;
+
+        // The next menu item Id after this option is selected.
+        // Has a higher precedence to nextHandler
+        next : T.NextMenuItemId;
+
+        // The function to execute after this option is selected.
+        // Will return the optional next menu item Id and latest session
+        nextHandler : ?NextHandler;
     };
 
     /// Return a new instance of a MenuOption
-    public func new(choice : T.Choice, text : T.ChoiceText, next : T.NextMenuItemId, exec : ?Func) : MenuOption {
-        { choice; text; next; exec };
+    public func new(choice : T.Choice, text : T.ChoiceText, next : T.NextMenuItemId, nextHandler : ?NextHandler) : MenuOption {
+        { choice; text; next; nextHandler };
     };
 
     /// Build the displayable menu option text

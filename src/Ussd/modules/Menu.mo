@@ -2,28 +2,25 @@ import MenuItem "MenuItem";
 import Set "mo:map/Set";
 import Text "mo:base/Text";
 import T "../types";
+import Func "Func";
 
 module Menu {
     type MenuItem = MenuItem.MenuItem;
+    type NextHandler = Func.NextHandler;
 
     public type Menu = {
         id : T.MenuId;
         description : T.MenuDescription;
         menuItems : Set.Set<MenuItem>;
-        startMenuItemId : T.MenuItemId; // the id of the start menu item
+        start : NextHandler;
     };
 
     /// Return an instance of ussd menu
     public func new(
         id : T.MenuId,
         description : T.MenuDescription,
-        startMenuItemId : T.MenuItemId,
-    ) : Menu = { id; description; menuItems = Set.new(); startMenuItemId };
-
-    /// Get the start menu item
-    public func getStartMenuItem({ startMenuItemId; menuItems } : Menu) : ?MenuItem {
-        Set.find<MenuItem>(menuItems, func item = item.id == startMenuItemId);
-    };
+        start : NextHandler,
+    ) : Menu = { id; description; menuItems = Set.new(); start };
 
     /// Add a menu item
     public func addMenuItem({ menuItems } : Menu, item : MenuItem) {
