@@ -13,15 +13,15 @@ module MenuOption {
 
         // The next menu item Id after this option is selected.
         // Has a higher precedence to nextHandler
-        next : T.NextMenuItemId;
+        next : ?T.NextMenuItemId;
 
         // The function to execute after this option is selected.
-        // Will return the optional next menu item Id and latest session
+        // Will return the next menu item Id and latest session
         nextHandler : ?NextHandler;
     };
 
     /// Return a new instance of a MenuOption
-    public func new(choice : T.Choice, text : T.ChoiceText, next : T.NextMenuItemId, nextHandler : ?NextHandler) : MenuOption {
+    public func new(choice : T.Choice, text : T.ChoiceText, next : ?T.NextMenuItemId, nextHandler : ?NextHandler) : MenuOption {
         { choice; text; next; nextHandler };
     };
 
