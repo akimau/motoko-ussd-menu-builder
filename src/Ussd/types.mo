@@ -1,5 +1,5 @@
-import Map "mo:map/Map";
 import Set "mo:map/Set";
+import AssocList "mo:base/AssocList";
 
 module {
     public type Set<T> = Set.Set<T>;
@@ -13,7 +13,7 @@ module {
     public type ChoiceText = Text;
 
     public type SessionId = Text;
-    public type SessionData = Map.Map<Text, Text>;
+    public type SessionData = AssocList.AssocList<Text, Text>;
 
     public type PhoneNumber = Text;
     public type ServiceCode = Text;

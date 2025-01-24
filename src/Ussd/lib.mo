@@ -48,22 +48,22 @@ module {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public func run(menu : Menu, args : Args, session : ?Session) : Result<MenuResp, MenuError> {
+    public func run(menu : Menu, args : Args, session : ?Session) : async* Result<MenuResp, MenuError> {
         switch (session) {
-            case (?session) processReply(menu, args, session);
-            case (null) startSession(menu, args);
+            case (?session) await* processReply(menu, args, session);
+            case (null) await* startSession(menu, args);
         };
     };
 
-    func startSession(menu : Menu, args : Args) : Result<MenuResp, MenuError> {
-        let (id, s) = menu.start(args, Session.new(args.sessionId));
+    func startSession(menu : Menu, args : Args) : async* Result<MenuResp, MenuError> {
+        let (id, s) = await* menu.start(args, Session.new(args.sessionId));
         switch (Menu.getMenuItem(menu, id)) {
-            case (?menuItem) runMenuItem(menuItem, args, s);
+            case (?menuItem) await* runMenuItem(menuItem, args, s);
             case (null) #err(#MenuNotFound(?id));
         };
     };
 
-    func processReply(menu : Menu, args : Args, session : Session) : Result<MenuResp, MenuError> {
+    func processReply(menu : Menu, args : Args, session : Session) : async* Result<MenuResp, MenuError> {
         // get the current menu item
         let menuItem : ?MenuItem = do ? {
             Menu.getMenuItem(menu, session.currentMenuItemId!)!;
@@ -79,7 +79,7 @@ module {
                             case (?menuOption) {
                                 switch (menuOption.next, menuOption.nextHandler) {
                                     case (?next, _) (next, session);
-                                    case (_, ?nextHandler) nextHandler(args, session);
+                                    case (_, ?nextHandler) await* nextHandler(args, session);
                                     case _ return #err(#UnexpectedError);
                                 };
                             };
@@ -87,18 +87,18 @@ module {
                         };
                     };
                     // handle free input
-                    case (_, ?nextHandler) nextHandler(args, session);
+                    case (_, ?nextHandler) await* nextHandler(args, session);
                     // unable to process reply. This case should be unreachable
                     case (null, null) return #err(#UnexpectedError);
                 };
 
                 if (id == menuItem.id) {
                     // re-run the current menu
-                    return runMenuItem(menuItem, args, s);
+                    return await* runMenuItem(menuItem, args, s);
                 };
 
                 switch (Menu.getMenuItem(menu, id)) {
-                    case (?menuItem) runMenuItem(menuItem, args, s);
+                    case (?menuItem) await* runMenuItem(menuItem, args, s);
                     case (null) #err(#MenuNotFound(?id));
                 };
             };
@@ -106,8 +106,8 @@ module {
         };
     };
 
-    func runMenuItem(menuItem : MenuItem, args : Args, session : Session) : Result<MenuResp, MenuError> {
-        let s = menuItem.run(args, session);
+    func runMenuItem(menuItem : MenuItem, args : Args, session : Session) : async* Result<MenuResp, MenuError> {
+        let s = await* menuItem.run(args, session);
         let displayText = MenuItem.displayText(menuItem, s);
         #ok(
             (if (MenuItem.hasNext(menuItem)) "CON " else "END ") # displayText,
