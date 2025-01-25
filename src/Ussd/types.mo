@@ -1,7 +1,9 @@
 import Set "mo:map/Set";
 import AssocList "mo:base/AssocList";
+import Result "mo:base/Result";
 
 module {
+    public type Result<Ok, Err> = Result.Result<Ok, Err>;
     public type Set<T> = Set.Set<T>;
 
     public type MenuId = Text;
@@ -22,4 +24,6 @@ module {
         #MenuNotFound : ?MenuItemId;
         #UnexpectedError;
     };
+
+    public type MenuResp = Result<Text, MenuError>;
 };
