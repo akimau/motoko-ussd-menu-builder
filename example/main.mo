@@ -21,7 +21,20 @@ persistent actor Main {
         { id = ussdMenu.id; description = ussdMenu.description };
     };
 
-    public func run() {
+    public func wrongPin() {
+        Debug.print("############### Starting session ###############");
+
+        var args = newArgs("session-1234", "0722000000", "*690#", "");
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
+
+        Debug.print("Replying 1234...");
+        args := newArgs("session-1234", "0722000000", "*690#", "1234");
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
+
+        Debug.print(debug_show ({ sessions = ussdMenu.sessions }));
+    };
+
+    public func resetPin() {
         Debug.print("############### Starting session ###############");
 
         var args = newArgs("session-1234", "0722000000", "*690#", "");
@@ -29,16 +42,33 @@ persistent actor Main {
 
         Debug.print("Replying 0...");
         args := newArgs("session-1234", "0722000000", "*690#", "0");
-        (await* runMenu(ussdMenu, args)) |> processResponse(_); // should print forgot pin menu
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
 
         Debug.print("Replying 1...");
         args := newArgs("session-1234", "0722000000", "*690#", "0*1");
-        (await* runMenu(ussdMenu, args)) |> processResponse(_); // should print reset pin menu
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
 
         Debug.print(debug_show ({ sessions = ussdMenu.sessions }));
     };
 
-    public func run2() {
+    public func contactUs() {
+        Debug.print("############### Starting session ###############");
+
+        var args = newArgs("session-1234", "0722000000", "*690#", "");
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
+
+        Debug.print("Replying 0...");
+        args := newArgs("session-1234", "0722000000", "*690#", "0");
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
+
+        Debug.print("Replying 2...");
+        args := newArgs("session-1234", "0722000000", "*690#", "0*2");
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
+
+        Debug.print(debug_show ({ sessions = ussdMenu.sessions }));
+    };
+
+    public func accountBalance() {
         Debug.print("############### Starting session ###############");
 
         var args = newArgs("session-1234", "0722000000", "*690#", "");
@@ -46,15 +76,15 @@ persistent actor Main {
 
         Debug.print("Replying 0000...");
         args := newArgs("session-1234", "0722000000", "*690#", "0000");
-        (await* runMenu(ussdMenu, args)) |> processResponse(_); // should print main menu
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
 
         Debug.print("Replying 1...");
         args := newArgs("session-1234", "0722000000", "*690#", "0000*1");
-        (await* runMenu(ussdMenu, args)) |> processResponse(_); // should print account balance
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
 
         Debug.print("Replying 00...");
         args := newArgs("session-1234", "0722000000", "*690#", "0000*1*00");
-        (await* runMenu(ussdMenu, args)) |> processResponse(_); // should print bye menu
+        (await* runMenu(ussdMenu, args)) |> processResponse(_);
 
         Debug.print(debug_show ({ sessions = ussdMenu.sessions }));
     };
