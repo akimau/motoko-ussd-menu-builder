@@ -1,5 +1,6 @@
 import { addMenuItem; menuItemHash; menuItemsAreEqual } "../../src/Ussd/modules/Menu";
 import Set "mo:map/Set";
+import Map "mo:map/Map";
 import MenuItem "../../src/Ussd/modules/MenuItem";
 import Menu "../../src/Ussd/modules/Menu";
 import Args "../../src/Ussd/modules/Args";
@@ -13,6 +14,7 @@ let tMenu = {
     id = "1";
     description = "description";
     menuItems = Set.new<MenuItem.MenuItem>();
+    sessions = Map.new();
     start;
 } : Menu.Menu;
 

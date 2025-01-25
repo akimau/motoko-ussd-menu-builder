@@ -1,12 +1,13 @@
+import Result "mo:base/Result";
+import Time "mo:base/Time";
+import Text "mo:base/Text";
 import Menu "modules/Menu";
 import MenuItem "modules/MenuItem";
 import MenuOption "modules/MenuOption";
 import Session "modules/Session";
 import Args "modules/Args";
-import Result "mo:base/Result";
-import Time "mo:base/Time";
-import T "types";
 import Func "modules/Func";
+import T "types";
 
 module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
@@ -14,7 +15,8 @@ module {
     public type Menu = Menu.Menu;
     public type MenuItem = MenuItem.MenuItem;
     public type MenuOption = MenuOption.MenuOption;
-    public type MenuResp = (Text, Session);
+    public type MenuResult = (Text, Session);
+    public type MenuResp = T.MenuResp;
     public type MenuError = T.MenuError;
 
     public type Run = Func.Run;
@@ -50,14 +52,30 @@ module {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public func run(menu : Menu, args : Args, session : ?Session) : async* Result<MenuResp, MenuError> {
-        switch (session) {
+    public func run(menu : Menu, args : Args) : async* MenuResp {
+        let result : Result<MenuResult, MenuError> = switch (Menu.getSession(menu, args.sessionId)) {
             case (?session) await* processReply(menu, args, session);
             case (null) await* startSession(menu, args);
         };
+
+        /// process result
+        switch (result) {
+            case (#ok((text, session))) {
+                if (Text.startsWith(text, #text "CON")) {
+                    Menu.saveSession(menu, session);
+                } else {
+                    Menu.deleteSession(menu, session.id);
+                };
+                #ok(text);
+            };
+            case (#err(err)) {
+                Menu.deleteSession(menu, args.sessionId);
+                #err(err);
+            };
+        };
     };
 
-    func startSession(menu : Menu, args : Args) : async* Result<MenuResp, MenuError> {
+    func startSession(menu : Menu, args : Args) : async* Result<MenuResult, MenuError> {
         let (id, s) = await* menu.start(args, Session.new(args.sessionId));
         switch (Menu.getMenuItem(menu, id)) {
             case (?menuItem) await* runMenuItem(menuItem, args, s);
@@ -65,7 +83,7 @@ module {
         };
     };
 
-    func processReply(menu : Menu, args : Args, session : Session) : async* Result<MenuResp, MenuError> {
+    func processReply(menu : Menu, args : Args, session : Session) : async* Result<MenuResult, MenuError> {
         // get the current menu item
         let menuItem : ?MenuItem = do ? {
             Menu.getMenuItem(menu, session.currentMenuItemId!)!;
@@ -108,15 +126,13 @@ module {
         };
     };
 
-    func runMenuItem(menuItem : MenuItem, args : Args, session : Session) : async* Result<MenuResp, MenuError> {
+    func runMenuItem(menuItem : MenuItem, args : Args, session : Session) : async* Result<MenuResult, MenuError> {
         let s = await* menuItem.run(args, session);
         let displayText = MenuItem.displayText(menuItem, s);
-        let hasNext = MenuItem.hasNext(menuItem);
         #ok(
-            (if (hasNext) "CON " else "END ") # displayText,
+            (if (MenuItem.hasNext(menuItem)) "CON " else "END ") # displayText,
             {
                 s with currentMenuItemId = ?menuItem.id;
-                data = if (hasNext) s.data else null; // clear data if session has ended
                 updatedAt = Time.now();
             },
         );

@@ -1,11 +1,11 @@
-import MenuOption "MenuOption";
-import Func "Func";
 import Array "mo:base/Array";
 import Nat32 "mo:base/Nat32";
 import Text "mo:base/Text";
 import Option "mo:base/Option";
 import AssocList "mo:base/AssocList";
 import Set "mo:map/Set";
+import MenuOption "MenuOption";
+import Func "Func";
 import Session "Session";
 import T "../types";
 
