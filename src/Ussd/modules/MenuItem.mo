@@ -4,6 +4,7 @@ import Array "mo:base/Array";
 import Nat32 "mo:base/Nat32";
 import Text "mo:base/Text";
 import Option "mo:base/Option";
+import AssocList "mo:base/AssocList";
 import Set "mo:map/Set";
 import Session "Session";
 import T "../types";
@@ -38,9 +39,8 @@ module MenuItem {
         id : T.MenuItemId,
         run : Run,
         text : T.MenuItemText,
-        next : ?T.NextMenuItemId,
         nextHandler : ?NextHandler,
-    ) : MenuItem { { id; run; text; options = null; next; nextHandler } };
+    ) : MenuItem { { id; run; text; options = null; nextHandler } };
 
     /// Return a new instance of a MenuItem with options
     public func newWithOptions(
@@ -62,7 +62,7 @@ module MenuItem {
     };
 
     /// Build the displayable menu item text
-    public func displayText({ text; options } : MenuItem, _session : Session) : Text {
+    public func displayText({ text; options } : MenuItem, session : Session) : Text {
         let displayText = switch (options) {
             case (?options) {
                 Array.foldLeft<MenuOption, Text>(
@@ -73,10 +73,14 @@ module MenuItem {
             };
             case (null) text;
         };
-        // TODO: use session to replace place holder values on the display text
+        // Use session to replace place holder values on the display text
         // e.g if display text is Hello {name}, session data must have a key 'name'
         // whose value can be used to replace the {name} placeholder
-        displayText;
+        AssocList.fold<Text, Text, Text>(
+            session.data,
+            displayText,
+            func(k, v, acc) = Text.replace(acc, #text("{" # k # "}"), v),
+        );
     };
 
     /// Get the menu option with the given choice
