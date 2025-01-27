@@ -7,7 +7,7 @@ import NotificationService "services/NotificationService";
 import SampleUssdMenu "SampleUssdMenu";
 
 import Ussd "../src/Ussd";
-import { run = runMenu; newArgs } "../src/Ussd";
+import { runMenu; newArgs } "../src/Ussd";
 
 persistent actor Main {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
