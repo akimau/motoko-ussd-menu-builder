@@ -52,7 +52,7 @@ module {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public func run(menu : Menu, args : Args) : async* MenuResp {
+    public func runMenu(menu : Menu, args : Args) : async* MenuResp {
         let result : Result<MenuResult, MenuError> = switch (Menu.getSession(menu, args.sessionId)) {
             case (?session) await* processReply(menu, args, session);
             case (null) await* startSession(menu, args);
