@@ -27,4 +27,4 @@ import {
 
 ### Example
 
-Building a USSD app using the library is fairly straightfoward. You can check [/example](/example) directory for a demo.
+Building a USSD app using the library is fairly straightfoward. You can check [/example](https://github.com/akimau/motoko-ussd-menu-builder/tree/main/example) directory for a demo.
