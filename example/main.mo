@@ -1,5 +1,10 @@
 import Result "mo:base/Result";
+import Text "mo:base/Text";
 import Debug "mo:base/Debug";
+import Blob "mo:base/Blob";
+import { JSON } "mo:serde";
+
+import Http "http";
 
 import UserService "services/UserService";
 import NotificationService "services/NotificationService";
@@ -16,6 +21,61 @@ persistent actor Main {
     transient let notifSvc = NotificationService.NotificationService();
 
     transient let ussdMenu = SampleUssdMenu.MenuBuilder(userSvc, notifSvc).build();
+
+    public query func http_request(_ : Http.Request) : async Http.Response {
+        Debug.print("Upgrading to update request.\n");
+        {
+            status_code = 404;
+            headers = [];
+            body = Blob.fromArray([]);
+            streaming_strategy = null;
+            upgrade = ?true;
+        };
+    };
+
+    public func http_request_update(req : Http.Request) : async Http.Response {
+        let result = switch (Text.decodeUtf8(req.body)) {
+            case (?jsonText) JSON.fromText(jsonText, null);
+            case (null) #err "Failed to decode body";
+        };
+
+        switch (result) {
+            case (#ok(blob)) {
+                let args : ?{
+                    sessionId : Text;
+                    phoneNumber : Text;
+                    serviceCode : Text;
+                    text : Text;
+                } = from_candid (blob);
+
+                switch (args) {
+                    case (?args) {
+                        Debug.print("Deserialized request body: " # debug_show (args));
+
+                        let { sessionId; phoneNumber; serviceCode; text } = args;
+
+                        switch (
+                            newArgs(sessionId, phoneNumber, serviceCode, text)
+                            |> (await* runMenu(ussdMenu, _))
+                        ) {
+                            case (#ok(displayText)) {
+                                return {
+                                    status_code : Nat16 = 200;
+                                    headers = [("content-type", "text/plain")];
+                                    body = Text.encodeUtf8(displayText);
+                                    streaming_strategy = null;
+                                    upgrade = null;
+                                };
+                            };
+                            case (#err(error)) Debug.trap(debug_show error);
+                        };
+                    };
+                    case (null) Debug.trap("Failed to deseriaize request body");
+                };
+            };
+            case (#err(err)) Debug.trap(err);
+        };
+    };
 
     public query func info() : async { id : Text; description : Text } {
         { id = ussdMenu.id; description = ussdMenu.description };

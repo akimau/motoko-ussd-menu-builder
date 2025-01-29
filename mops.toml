@@ -14,3 +14,4 @@ pocket-ic = "7.0.0"
 [dependencies]
 map = "9.0.1"
 base = "0.13.6"
+serde = "3.2.2"
